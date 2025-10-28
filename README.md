@@ -32,7 +32,7 @@
 
 1. **Клонирование проекта:**
    ```bash
-   cd NotesApp
+   git clone https://github.com/Pastbin/NotesApp.git
    ```
 
 2. **Установка зависимостей:**
