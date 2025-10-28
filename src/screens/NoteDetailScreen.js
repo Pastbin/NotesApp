@@ -9,12 +9,16 @@ import {
 } from "react-native";
 import { Header, Button, Input, Card, Text } from "react-native-elements";
 import { database } from "../database/database";
+import { useTheme } from "../theme/ThemeContext";
+import { getColors } from "../theme/colors";
 
 export default function NoteDetailScreen({ navigation, route }) {
   const { note } = route.params;
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
+  const { isDark } = useTheme();
+  const colors = getColors(isDark);
 
   const updateNote = async () => {
     if (!title.trim()) {
@@ -76,7 +80,7 @@ export default function NoteDetailScreen({ navigation, route }) {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.background} />
       <Header
         leftComponent={
           <Button
@@ -94,16 +98,17 @@ export default function NoteDetailScreen({ navigation, route }) {
           style: { color: "#fff", fontSize: 20, fontWeight: "bold" },
         }}
         rightComponent={null}
-        backgroundColor="#007AFF"
+        backgroundColor={colors.header}
       />
 
-      <ScrollView style={{ backgroundColor: "#f5f5f5", flex: 1 }}>
+      <ScrollView style={{ backgroundColor: colors.background, flex: 1 }}>
         <Card
           containerStyle={{
             margin: 15,
             borderRadius: 10,
             borderWidth: 0,
             elevation: 2,
+            backgroundColor: colors.card,
           }}
         >
           <View
@@ -166,7 +171,9 @@ export default function NoteDetailScreen({ navigation, route }) {
                 fontSize: 24,
                 fontWeight: "bold",
                 textAlignVertical: "top",
+                color: colors.text,
               }}
+              placeholderTextColor={colors.placeholder}
               containerStyle={{ paddingHorizontal: 0, marginBottom: 15 }}
             />
           ) : (
@@ -174,7 +181,7 @@ export default function NoteDetailScreen({ navigation, route }) {
               style={{
                 fontSize: 24,
                 fontWeight: "bold",
-                color: "#333",
+                color: colors.text,
                 marginBottom: 15,
               }}
             >
@@ -192,14 +199,16 @@ export default function NoteDetailScreen({ navigation, route }) {
                 textAlignVertical: "top",
                 minHeight: 200,
                 lineHeight: 24,
+                color: colors.text,
               }}
+              placeholderTextColor={colors.placeholder}
               containerStyle={{ paddingHorizontal: 0 }}
             />
           ) : (
             <Text
               style={{
                 fontSize: 16,
-                color: "#333",
+                color: colors.text,
                 lineHeight: 24,
                 marginBottom: 20,
               }}
@@ -208,11 +217,19 @@ export default function NoteDetailScreen({ navigation, route }) {
             </Text>
           )}
 
-          <Text style={{ fontSize: 12, color: "#999", fontStyle: "italic" }}>
+          <Text style={{
+            fontSize: 12,
+            color: colors.textTertiary,
+            fontStyle: "italic"
+          }}>
             Создано: {new Date(note.created_at).toLocaleString("ru-RU")}
           </Text>
           {note.updated_at !== note.created_at && (
-            <Text style={{ fontSize: 12, color: "#999", fontStyle: "italic" }}>
+            <Text style={{
+              fontSize: 12,
+              color: colors.textTertiary,
+              fontStyle: "italic"
+            }}>
               Изменено: {new Date(note.updated_at).toLocaleString("ru-RU")}
             </Text>
           )}

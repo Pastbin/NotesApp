@@ -8,10 +8,14 @@ import {
   Button,
 } from "react-native-elements";
 import { database } from "../database/database";
+import { useTheme } from "../theme/ThemeContext";
+import { getColors } from "../theme/colors";
 
 export default function HomeScreen({ navigation }) {
   const [notes, setNotes] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const { isDark } = useTheme();
+  const colors = getColors(isDark);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -65,26 +69,39 @@ export default function HomeScreen({ navigation }) {
         borderRadius: 10,
         borderWidth: 0,
         elevation: 2,
+        backgroundColor: colors.card,
       }}
     >
       <ListItem
         key={item.id}
         onPress={() => navigation.navigate("NoteDetail", { note: item })}
         bottomDivider
+        containerStyle={{ backgroundColor: colors.card }}
       >
         <ListItem.Content>
           <ListItem.Title
-            style={{ fontWeight: "bold", fontSize: 18, marginBottom: 5 }}
+            style={{
+              fontWeight: "bold",
+              fontSize: 18,
+              marginBottom: 5,
+              color: colors.text
+            }}
           >
             {item.title}
           </ListItem.Title>
           <ListItem.Subtitle
             numberOfLines={2}
-            style={{ color: "#666", marginBottom: 8 }}
+            style={{
+              color: colors.textSecondary,
+              marginBottom: 8
+            }}
           >
             {item.content}
           </ListItem.Subtitle>
-          <ListItem.Subtitle style={{ color: "#999", fontSize: 12 }}>
+          <ListItem.Subtitle style={{
+            color: colors.textTertiary,
+            fontSize: 12
+          }}>
             {new Date(item.created_at).toLocaleDateString("ru-RU")}
           </ListItem.Subtitle>
         </ListItem.Content>
@@ -92,7 +109,7 @@ export default function HomeScreen({ navigation }) {
           icon={{
             name: "delete",
             size: 24,
-            color: "#ff3b30",
+            color: colors.error,
           }}
           type="clear"
           onPress={() => deleteNote(item.id)}
@@ -103,7 +120,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.background} />
       <Header
         leftComponent={
           <Button
@@ -131,40 +148,53 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate("AddNote")}
           />
         }
-        backgroundColor="#007AFF"
+        backgroundColor={colors.header}
       />
 
-      <View style={styles.searchContainer}>
+      <View style={[styles.searchContainer, { backgroundColor: colors.searchBackground }]}>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, {
+            backgroundColor: colors.searchInput,
+            color: colors.text,
+          }]}
           placeholder="Поиск заметок..."
+          placeholderTextColor={colors.placeholder}
           onChangeText={setSearchText}
           value={searchText}
         />
         {searchText && filteredNotes.length === 0 && (
-          <Text style={styles.noResultsText}>
+          <Text style={[styles.noResultsText, { color: colors.textSecondary }]}>
             Заметок не найдено
           </Text>
         )}
       </View>
 
-      <FlatList
-        data={filteredNotes}
-        renderItem={renderNote}
-        style={{ backgroundColor: "#f5f5f5", flex: 1 }}
-      />
+      {notes.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            Пока нет ни одной заметки
+          </Text>
+          <Text style={[styles.emptySubtext, { color: colors.textTertiary }]}>
+            Нажмите на кнопку "+" чтобы создать первую заметку
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredNotes}
+          renderItem={renderNote}
+          style={{ backgroundColor: colors.background, flex: 1 }}
+        />
+      )}
     </>
   );
 }
 
 const styles = StyleSheet.create({
   searchContainer: {
-    backgroundColor: "#f5f5f5",
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
   searchInput: {
-    backgroundColor: "#fff",
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -177,9 +207,25 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     textAlign: "center",
-    color: "#666",
     fontSize: 16,
     marginTop: 10,
     fontStyle: "italic",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    textAlign: "center",
+    marginBottom: 10,
+    fontWeight: "500",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
